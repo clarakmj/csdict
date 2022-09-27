@@ -24,10 +24,15 @@ public class CSdict {
     static Boolean debugOn = false;
     
     private static final int PERMITTED_ARGUMENT_COUNT = 1;
-    private static String command;
-    private static String[] arguments;
+	// Richard - do we need these as properties? Moved them to local vars in main
+    // private static String command;
+    // private static String[] arguments;
+	private static Socket echoSocket; 
+	private static PrintWriter out;
+	private static BufferedReader in;
     
     public static void main(String [] args) {
+	while (true) {
 		byte cmdString[] = new byte[MAX_LEN];
 		int len;
 		// Verify command line arguments
@@ -46,83 +51,84 @@ public class CSdict {
 			}
 
 		// Example code to read command line input and extract arguments.
+			try {
+				System.out.print("csdict> ");
+				System.in.read(cmdString);
 
-		try {
-			System.out.print("csdict> ");
-			System.in.read(cmdString);
-
-			// Convert the command string to ASII
-			String inputString = new String(cmdString, "ASCII");
-			
-			// Split the string into words
-			String[] inputs = inputString.trim().split("( |\t)+");
-			// Set the command
-			command = inputs[0].toLowerCase().trim();
-			// Remainder of the inputs is the arguments. 
-			arguments = Arrays.copyOfRange(inputs, 1, inputs.length);
-
-			System.out.println("The command is: " + command);
-			len = arguments.length;
-			System.out.println("The arguments are: ");
-			for (int i = 0; i < len; i++) {
-			System.out.println("    " + arguments[i]);
+				// Richard - Added these vars locally instead of as properties since we process each command one at a time?
+				String command = null; 
+    			String[] arguments = null;
+	
+				// Convert the command string to ASII
+				String inputString = new String(cmdString, "ASCII");
+				
+				// Split the string into words
+				String[] inputs = inputString.trim().split("( |\t)+");
+				// Set the command
+				command = inputs[0].toLowerCase().trim();
+				// Remainder of the inputs is the arguments. 
+				arguments = Arrays.copyOfRange(inputs, 1, inputs.length);
+	
+				System.out.println("The command is: " + command);
+				len = arguments.length;
+				System.out.println("The arguments are: ");
+				for (int i = 0; i < len; i++) {
+				System.out.println("    " + arguments[i]);
+				}
+				System.out.println("Done.");
+	
+	
+				switch (command) {
+					case "open": 
+						handleOpenCommand(arguments);
+						break;
+					case "dict":
+						handleDictCommand();
+						break;
+					case "set":
+						handleSetCommand(arguments);
+						break;
+					case "define":
+						handleDefineCommand(arguments);
+						break;	
+					case "match":
+						handleMatchCommand(arguments);
+						break;	
+					case "prefixmatch":
+						handlePrefixmatchCommand(arguments);
+						break;	
+					case "close":
+						handleCloseCommand();
+						break;
+					case "quit":
+						handleQuitCommand();
+						break;
+					default:
+						System.err.println("900 Invalid command");
+						break;
+				}
+			} catch (IOException exception) {
+			System.err.println("998 Input error while reading commands, terminating.");
+					System.exit(-1);
 			}
-			System.out.println("Done.");
-
-
-			switch (command) {
-				case "open": 
-					handleOpenCommand(arguments);
-					break;
-				case "dict":
-					handleDictCommand();
-					break;
-				case "set":
-					handleSetCommand(arguments);
-					break;
-				case "define":
-					handleDefineCommand(arguments);
-					break;	
-				case "match":
-					handleMatchCommand(arguments);
-					break;	
-				case "prefixmatch":
-					handlePrefixmatchCommand(arguments);
-					break;	
-				case "close":
-					handleCloseCommand();
-					break;
-				case "quit":
-					handleQuitCommand();
-					break;
-				default:
-					System.err.println("900 Invalid command");
-					break;
-			}
-
-		} catch (IOException exception) {
-		System.err.println("998 Input error while reading commands, terminating.");
-				System.exit(-1);
 		}
-
     }
 
 	// https://docs.oracle.com/javase/tutorial/networking/sockets/examples/EchoClient.java
-	static public void handleOpenCommand(String[] args) {
+	public static void handleOpenCommand(String[] args) {
 		String hostName = args[0];
 		int portNumber = Integer.parseInt(args[1]);
 
-		try (
-			Socket echoSocket = new Socket(hostName, portNumber);
-			PrintWriter out =
+		try {
+			CSdict.echoSocket = new Socket(hostName, portNumber);
+			CSdict.out =
 				new PrintWriter(echoSocket.getOutputStream(), true);
-			BufferedReader in =
+			CSdict.in =
 				new BufferedReader(
 					new InputStreamReader(echoSocket.getInputStream()));
 			BufferedReader stdIn =
 				new BufferedReader(
-					new InputStreamReader(System.in))
-		) {
+					new InputStreamReader(System.in));
 			// out.println(command); // change this to reflect
 			System.out.println("echo: " + in.readLine());
 		} catch (UnknownHostException e) {
@@ -135,32 +141,34 @@ public class CSdict {
 		} 
 	}
 
-	public void handleDictCommand() {
+	public static void handleDictCommand() {
+		// code
+		CSdict.out.println("test");
+	}
+
+	public static void handleSetCommand(String[] arg) {
 		// code
 	}
 
-	public void handleSetCommand(String arg) {
+	public static void handleDefineCommand(String[] arg) {
 		// code
 	}
 
-	public void handleDefineCommand(String arg) {
+	public static void handleMatchCommand(String[] arg) {
 		// code
 	}
 
-	public void handleMatchCommand(String arg) {
+	public static void handlePrefixmatchCommand(String[] arg) {
 		// code
 	}
 
-	public void handlePrefixmatchCommand(String arg) {
+	public static void handleCloseCommand() {
 		// code
 	}
 
-	public void handleCloseCommand() {
+	public static void handleQuitCommand() {
 		// code
-	}
-
-	public void handleQuitCommand() {
-		// code
+		System.exit(-1);
 	}
 }
     
