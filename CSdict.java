@@ -110,7 +110,6 @@ public class CSdict {
 				}
 			} catch (IOException exception) {
 			System.err.println("998 Input error while reading commands, terminating.");
-					System.exit(-1);
 			}
 		}
     }
