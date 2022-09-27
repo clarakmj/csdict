@@ -167,7 +167,9 @@ public class CSdict {
 	}
 
 	public static void handleDefineCommand(String[] arg) {
-		// code
+		String cmd = "define" + " ";
+		cmd += CSdict.dictionary == "*" ? "all" + " " + arg[0] : CSdict.dictionary + " " + arg[0];
+		readAllLines(cmd);
 	}
 
 	public static void handleMatchCommand(String[] arg) {
