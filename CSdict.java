@@ -30,7 +30,7 @@ public class CSdict {
 	private static Socket socket; 
 	private static PrintWriter out;
 	private static BufferedReader in;
-	private static String dictionary = "wn";
+	private static String dictionary = "*";
     
     public static void main(String [] args) {
 	while (true) {
@@ -154,6 +154,9 @@ public class CSdict {
 				hostName);
 			System.exit(1);
 		} 
+
+		// Every time a connection to a dictionary server is made the dictionary to use is reset to "*".
+		CSdict.dictionary = "*";
 	}
 
 	public static void handleDictCommand() {
@@ -182,7 +185,12 @@ public class CSdict {
 	}
 
 	public static void handlePrefixmatchCommand(String[] arg) {
-		// code
+		String commandString = "MATCH " + CSdict.dictionary + " prefix";
+		for (int i = 0; i < arg.length; i++) {
+			String temp = " " + arg[i];
+			commandString +=  temp;
+		}
+		readAllLines(commandString);
 	}
 
 	public static void handleCloseCommand() {
