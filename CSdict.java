@@ -186,11 +186,13 @@ public class CSdict {
 	}
 
 	public static void handleCloseCommand() {
-		// code
+		String cmd = "q";
+		readAllLines(cmd);
 	}
 
 	public static void handleQuitCommand() {
-		// code
+		String cmd = "q";
+		readAllLines(cmd);
 		System.exit(-1);
 	}
 }
