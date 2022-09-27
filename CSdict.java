@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.io.BufferedReader;
 import java.io.*;
 import java.net.*;
+import java.util.stream.Collectors;
 
 //
 // This is an implementation of a simplified version of a command
@@ -27,7 +28,7 @@ public class CSdict {
 	// Richard - do we need these as properties? Moved them to local vars in main
     // private static String command;
     // private static String[] arguments;
-	private static Socket echoSocket; 
+	private static Socket socket; 
 	private static PrintWriter out;
 	private static BufferedReader in;
     
@@ -120,16 +121,15 @@ public class CSdict {
 		int portNumber = Integer.parseInt(args[1]);
 
 		try {
-			CSdict.echoSocket = new Socket(hostName, portNumber);
+			CSdict.socket = new Socket(hostName, portNumber);
 			CSdict.out =
-				new PrintWriter(echoSocket.getOutputStream(), true);
+				new PrintWriter(socket.getOutputStream(), true);
 			CSdict.in =
 				new BufferedReader(
-					new InputStreamReader(echoSocket.getInputStream()));
+					new InputStreamReader(socket.getInputStream()));
 			BufferedReader stdIn =
 				new BufferedReader(
 					new InputStreamReader(System.in));
-			// out.println(command); // change this to reflect
 			System.out.println("echo: " + in.readLine());
 		} catch (UnknownHostException e) {
 			System.err.println("Don't know about host " + hostName);
@@ -155,7 +155,19 @@ public class CSdict {
 	}
 
 	public static void handleMatchCommand(String[] arg) {
-		// code
+		String commandString = "MATCH";
+		for (int i = 0; i < arg.length; i++) {
+			String temp = " " + arg[i];
+			commandString +=  temp;
+		}
+		try {
+			CSdict.out.println(commandString); // support multiple args?
+			System.out.println("echo: " + CSdict.in.readLine());
+			// System.out.println("echo: " + CSdict.in.lines().collect(Collectors.joining(System.lineSeparator())));
+			System.out.println("reaches this lines");
+		} catch (IOException e) {
+			// recover code
+		}
 	}
 
 	public static void handlePrefixmatchCommand(String[] arg) {
