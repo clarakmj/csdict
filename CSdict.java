@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.io.BufferedReader;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 //
 // This is an implementation of a simplified version of a command
@@ -31,8 +32,18 @@ public class CSdict {
 	private static PrintWriter out;
 	private static BufferedReader in;
 	private static String dictionary = "*";
+	private static ArrayList<String> responseCodes = new ArrayList<String>();
     
     public static void main(String [] args) {
+	responseCodes.add("250 ok");
+	responseCodes.add("221 bye");
+	responseCodes.add("551 invalid strategy");
+	responseCodes.add("552 no match");
+	responseCodes.add("550 invalid database, use SHOW DB for list");
+	responseCodes.add("554 no databases present");
+	
+
+
 	while (true) {
 		byte cmdString[] = new byte[MAX_LEN];
 		int len;
@@ -114,19 +125,37 @@ public class CSdict {
 		}
     }
 
+	public static boolean checkResponseCode(String line) throws Exception {
+
+		// ArrayList<String> responseCodes = new ArrayList<String>();
+		// responseCodes.add("250 ok");
+
+		for (String i : responseCodes) {
+			if (line.contains(i)) {
+				System.out.println(i);
+				return false;
+			}
+		}
+    	return true;
+	}
+
 	public static void readAllLines(String cmd) {
 		try {
 			StringBuilder sb = new StringBuilder();
 			String response = "";
 			CSdict.out.println(cmd);
-			System.out.println(CSdict.in.readLine());
-			while ((response = in.readLine()) != null){
+			// System.out.println(CSdict.in.readLine());
+		while (checkResponseCode(response = in.readLine())){
+		// while ((response = in.readLine()) != null){
 				System.out.println(response);
 				sb.append(response);
 				sb.append('\n');
         }
 		} catch (IOException e) {
 			// error
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -145,7 +174,7 @@ public class CSdict {
 			BufferedReader stdIn =
 				new BufferedReader(
 					new InputStreamReader(System.in));
-			System.out.println("echo: " + in.readLine());
+			System.out.println("<-- " + in.readLine());
 		} catch (UnknownHostException e) {
 			System.err.println("Don't know about host " + hostName);
 			System.exit(1);
