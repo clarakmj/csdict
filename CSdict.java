@@ -114,6 +114,22 @@ public class CSdict {
 		}
     }
 
+	public static void readAllLines(String cmd) {
+		try {
+			StringBuilder sb = new StringBuilder();
+			String response = "";
+			CSdict.out.println(cmd);
+			System.out.println(CSdict.in.readLine());
+			while ((response = in.readLine()) != null){
+				System.out.println(response);
+				sb.append(response);
+				sb.append('\n');
+        }
+		} catch (IOException e) {
+			// error
+		}
+	}
+
 	// https://docs.oracle.com/javase/tutorial/networking/sockets/examples/EchoClient.java
 	public static void handleOpenCommand(String[] args) {
 		String hostName = args[0];
@@ -141,8 +157,8 @@ public class CSdict {
 	}
 
 	public static void handleDictCommand() {
-		// code
-		CSdict.out.println("test");
+		String cmd = "show db";
+		readAllLines(cmd);
 	}
 
 	public static void handleSetCommand(String[] arg) {
