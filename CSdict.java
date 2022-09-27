@@ -175,14 +175,7 @@ public class CSdict {
 			String temp = " " + arg[i];
 			commandString +=  temp;
 		}
-		try {
-			CSdict.out.println(commandString); // support multiple args?
-			System.out.println("echo: " + CSdict.in.readLine());
-			// System.out.println("echo: " + CSdict.in.lines().collect(Collectors.joining(System.lineSeparator())));
-			System.out.println("reaches this lines");
-		} catch (IOException e) {
-			// recover code
-		}
+		readAllLines(commandString);
 	}
 
 	public static void handlePrefixmatchCommand(String[] arg) {
