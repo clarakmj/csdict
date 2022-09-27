@@ -139,6 +139,7 @@ public class CSdict {
     	return true;
 	}
 
+	// https://stackoverflow.com/questions/60922164/reading-multiple-lines-from-server?fbclid=IwAR3tVir5sdSPmMoCNwFsAKjai_7S87mS4M19uOx818A5zAkb8udwPeUY-sM
 	public static void readAllLines(String cmd) {
 		try {
 			StringBuilder sb = new StringBuilder();
