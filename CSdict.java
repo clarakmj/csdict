@@ -30,7 +30,7 @@ public class CSdict {
 	private static Socket socket; 
 	private static PrintWriter out;
 	private static BufferedReader in;
-	private static String dictionary = "*";
+	private static String dictionary = "wn";
     
     public static void main(String [] args) {
 	while (true) {
