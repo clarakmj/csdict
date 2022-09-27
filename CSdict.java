@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.io.BufferedReader;
 import java.io.*;
 import java.net.*;
-import java.util.stream.Collectors;
 
 //
 // This is an implementation of a simplified version of a command
@@ -31,6 +30,7 @@ public class CSdict {
 	private static Socket socket; 
 	private static PrintWriter out;
 	private static BufferedReader in;
+	private static String dictionary = "*";
     
     public static void main(String [] args) {
 	while (true) {
@@ -163,6 +163,7 @@ public class CSdict {
 
 	public static void handleSetCommand(String[] arg) {
 		// code
+		CSdict.dictionary = arg[0];
 	}
 
 	public static void handleDefineCommand(String[] arg) {
@@ -170,7 +171,7 @@ public class CSdict {
 	}
 
 	public static void handleMatchCommand(String[] arg) {
-		String commandString = "MATCH";
+		String commandString = "MATCH " + CSdict.dictionary + " exact";
 		for (int i = 0; i < arg.length; i++) {
 			String temp = " " + arg[i];
 			commandString +=  temp;
