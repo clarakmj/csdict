@@ -32,15 +32,15 @@ public class CSdict {
 	private static PrintWriter out;
 	private static BufferedReader in;
 	private static String dictionary = "*";
-	private static ArrayList<String> responseCodes = new ArrayList<String>();
+	// private static ArrayList<String> responseCodes = new ArrayList<String>();
     
     public static void main(String [] args) {
-	responseCodes.add("250 ok");
-	responseCodes.add("221 bye");
-	responseCodes.add("551 invalid strategy");
-	responseCodes.add("552 no match");
-	responseCodes.add("550 invalid database, use SHOW DB for list");
-	responseCodes.add("554 no databases present");
+	// responseCodes.add("250 ok");
+	// responseCodes.add("221 bye");
+	// responseCodes.add("551 invalid strategy");
+	// responseCodes.add("552 no match");
+	// responseCodes.add("550 invalid database, use SHOW DB for list");
+	// responseCodes.add("554 no databases present");
 	
 
 
@@ -125,33 +125,32 @@ public class CSdict {
 		}
     }
 
-	public static boolean checkResponseCode(String line) throws Exception {
+	// public static boolean checkResponseCode(String line) throws Exception {
 
-		// ArrayList<String> responseCodes = new ArrayList<String>();
-		// responseCodes.add("250 ok");
-
-		for (String i : responseCodes) {
-			if (line.contains(i)) {
-				System.out.println(i);
-				return false;
-			}
-		}
-    	return true;
-	}
+	// 	for (String i : responseCodes) {
+	// 		if (line.contains(i)) {
+	// 			System.out.println(i);
+	// 			return false;
+	// 		}
+	// 	}
+    // 	return true;
+	// }
 
 	// https://stackoverflow.com/questions/60922164/reading-multiple-lines-from-server?fbclid=IwAR3tVir5sdSPmMoCNwFsAKjai_7S87mS4M19uOx818A5zAkb8udwPeUY-sM
 	public static void readAllLines(String cmd) {
 		try {
-			StringBuilder sb = new StringBuilder();
 			String response = "";
 			CSdict.out.println(cmd);
-			// System.out.println(CSdict.in.readLine());
-		while (checkResponseCode(response = in.readLine())){
-		// while ((response = in.readLine()) != null){
-				System.out.println(response);
-				sb.append(response);
-				sb.append('\n');
-        }
+			while ( !((response = in.readLine()).trim().equals(".")) ){
+					System.out.println(response);
+			}
+			// System.out.println("."); // TODO: fix if have time
+			String responseCode = CSdict.in.readLine();
+			// System.out.println(responseCode.split(" [")[0]);
+			// if (responseCode.split(" [")[0].equals("552 no match")) {
+			// 	System.out.println("****No definition found****");
+			// }
+			System.out.println(responseCode); // print the status code
 		} catch (IOException e) {
 			// error
 		} catch (Exception e) {
@@ -172,9 +171,9 @@ public class CSdict {
 			CSdict.in =
 				new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
-			BufferedReader stdIn =
-				new BufferedReader(
-					new InputStreamReader(System.in));
+			// BufferedReader stdIn =
+			// 	new BufferedReader(
+			// 		new InputStreamReader(System.in));
 			System.out.println("<-- " + in.readLine());
 		} catch (UnknownHostException e) {
 			System.err.println("Don't know about host " + hostName);
