@@ -32,7 +32,7 @@ public class CSdict {
 	private static PrintWriter out;
 	private static BufferedReader in;
 	private static String dictionary = "*";
-	// private static ArrayList<String> responseCodes = new ArrayList<String>();
+	private static ArrayList<String> responseCodes = new ArrayList<String>();
     
     public static void main(String [] args) {
 	// responseCodes.add("250 ok");
@@ -41,6 +41,13 @@ public class CSdict {
 	// responseCodes.add("552 no match");
 	// responseCodes.add("550 invalid database, use SHOW DB for list");
 	// responseCodes.add("554 no databases present");
+
+	responseCodes.add("250");
+	responseCodes.add("221");
+	responseCodes.add("551");
+	responseCodes.add("552");
+	responseCodes.add("550");
+	responseCodes.add("554");
 	
 
 
@@ -92,15 +99,31 @@ public class CSdict {
 	
 				switch (command) {
 					case "open": 
+						if (!isValidNumberOfArgs(arguments, 2)) {
+							System.out.println("901 Incorrect number of arguments.");
+							break;
+						}
 						handleOpenCommand(arguments);
 						break;
 					case "dict":
 						handleDictCommand();
+						if (!isValidNumberOfArgs(arguments, 0)) {
+							System.out.println("901 Incorrect number of arguments.");
+							break;
+						}
 						break;
 					case "set":
+						if (!isValidNumberOfArgs(arguments, 1)) {
+							System.out.println("901 Incorrect number of arguments.");
+							break;
+						}
 						handleSetCommand(arguments);
 						break;
 					case "define":
+						if (!isValidNumberOfArgs(arguments, 1)) {
+							System.out.println("901 Incorrect number of arguments.");
+							break;
+						}
 						handleDefineCommand(arguments);
 						break;	
 					case "match":
@@ -110,13 +133,21 @@ public class CSdict {
 						handlePrefixmatchCommand(arguments);
 						break;	
 					case "close":
+						if (!isValidNumberOfArgs(arguments, 0)) {
+							System.out.println("901 Incorrect number of arguments.");
+							break;
+						}
 						handleCloseCommand();
 						break;
 					case "quit":
+						if (!isValidNumberOfArgs(arguments, 0)) {
+							System.out.println("901 Incorrect number of arguments.");
+							break;
+						}
 						handleQuitCommand();
 						break;
 					default:
-						System.err.println("900 Invalid command");
+						System.err.println("900 Invalid command.");
 						break;
 				}
 			} catch (IOException exception) {
@@ -125,6 +156,10 @@ public class CSdict {
 		}
     }
 
+	public static boolean isValidNumberOfArgs(String[] args, int expected) {
+		int given = args.length;
+		return given == expected;
+	}
 	// public static boolean checkResponseCode(String line) throws Exception {
 
 	// 	for (String i : responseCodes) {
@@ -141,10 +176,18 @@ public class CSdict {
 		try {
 			String response = "";
 			CSdict.out.println(cmd);
+			String firstLine = in.readLine();
+			for (String line : responseCodes) {
+				if (firstLine.startsWith(line)) {
+					System.out.println(firstLine);
+					return;
+				}
+			}
+			System.out.println(firstLine);
 			while ( !((response = in.readLine()).trim().equals(".")) ){
 					System.out.println(response);
 			}
-			// System.out.println("."); // TODO: fix if have time
+			System.out.println(response);
 			String responseCode = CSdict.in.readLine();
 			// System.out.println(responseCode.split(" [")[0]);
 			// if (responseCode.split(" [")[0].equals("552 no match")) {
@@ -161,6 +204,10 @@ public class CSdict {
 
 	// https://docs.oracle.com/javase/tutorial/networking/sockets/examples/EchoClient.java
 	public static void handleOpenCommand(String[] args) {
+		if (!args[1].matches("[0-9]+")) {
+			System.out.println("902 Invalid argument.");
+			return;
+		}
 		String hostName = args[0];
 		int portNumber = Integer.parseInt(args[1]);
 
@@ -201,11 +248,35 @@ public class CSdict {
 	public static void handleDefineCommand(String[] arg) {
 		String cmd = "define" + " ";
 		cmd += CSdict.dictionary == "*" ? "all" + " " + arg[0] : CSdict.dictionary + " " + arg[0];
-		readAllLines(cmd);
+		CSdict.out.println(cmd);
+		try {
+			String response = "";
+			String firstLine = in.readLine();
+			if (firstLine.startsWith("552")) {
+				System.out.println("****No definition found****");
+				cmd = "match" + " " + CSdict.dictionary + " " + "exact" + " " + arg[0];
+				CSdict.out.println(cmd);
+				firstLine = in.readLine();
+				if (firstLine.startsWith("552")) {
+					System.out.println("****No matches found****");
+					return;
+				} else {
+					readAllLines(cmd);
+				}
+				return;
+			} 
+			readAllLines(cmd);
+		} catch (IOException e) {
+			// error
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void handleMatchCommand(String[] arg) {
 		String commandString = "MATCH " + CSdict.dictionary + " exact";
+		// why is there potentially more than 1 word to match?
 		for (int i = 0; i < arg.length; i++) {
 			String temp = " " + arg[i];
 			commandString +=  temp;
