@@ -49,25 +49,24 @@ public class CSdict {
 	responseCodes.add("550");
 	responseCodes.add("554");
 	
-
+	if (args.length == PERMITTED_ARGUMENT_COUNT) {
+		debugOn = args[0].equals("-d");
+		if (debugOn) {
+			System.out.println("Debugging output enabled"); //TODO: Might need to remove this line, not in sample output?
+		} else {
+			System.out.println("997 Invalid command line option - Only -d is allowed");
+			return;
+		}
+	} else if (args.length > PERMITTED_ARGUMENT_COUNT) {
+		System.out.println("996 Too many command line options - Only -d is allowed");
+		return;
+	}
 
 	while (true) {
 		byte cmdString[] = new byte[MAX_LEN];
 		int len;
 		// Verify command line arguments
 
-			if (args.length == PERMITTED_ARGUMENT_COUNT) {
-				debugOn = args[0].equals("-d");
-				if (debugOn) {
-					System.out.println("Debugging output enabled");
-				} else {
-					System.out.println("997 Invalid command line option - Only -d is allowed");
-					return;
-				}
-			} else if (args.length > PERMITTED_ARGUMENT_COUNT) {
-				System.out.println("996 Too many command line options - Only -d is allowed");
-				return;
-			}
 
 		// Example code to read command line input and extract arguments.
 			try {
@@ -88,13 +87,13 @@ public class CSdict {
 				// Remainder of the inputs is the arguments. 
 				arguments = Arrays.copyOfRange(inputs, 1, inputs.length);
 	
-				System.out.println("The command is: " + command);
-				len = arguments.length;
-				System.out.println("The arguments are: ");
-				for (int i = 0; i < len; i++) {
-				System.out.println("    " + arguments[i]);
-				}
-				System.out.println("Done.");
+				// System.out.println("The command is: " + command);
+				// len = arguments.length;
+				// System.out.println("The arguments are: ");
+				// for (int i = 0; i < len; i++) {
+				// System.out.println("    " + arguments[i]);
+				// }
+				// System.out.println("Done.");
 	
 	
 				switch (command) {
@@ -143,11 +142,19 @@ public class CSdict {
 							System.out.println("903 Supplied command not expected at this time.");
 							break;
 						}
+						if (!isValidNumberOfArgs(arguments, 1)) {
+							System.out.println("901 Incorrect number of arguments.");
+							break;
+						}
 						handleMatchCommand(arguments);
 						break;	
 					case "prefixmatch":
 						if (CSdict.socket == null) {
 							System.out.println("903 Supplied command not expected at this time.");
+							break;
+						}
+						if (!isValidNumberOfArgs(arguments, 1)) {
+							System.out.println("901 Incorrect number of arguments.");
 							break;
 						}
 						handlePrefixmatchCommand(arguments);
@@ -200,10 +207,13 @@ public class CSdict {
 		try {
 			String response = "";
 			CSdict.out.println(cmd);
+			if (CSdict.debugOn) {
+				System.out.println("> " + cmd);
+			}
 			String firstLine = in.readLine();
-			for (String line : responseCodes) {
+			for (String line : responseCodes) { // Only really in use by the MATCH command, DEFINE uses logic in its own handler
 				if (firstLine.startsWith(line)) {
-					System.out.println(firstLine);
+					System.out.println("<-- " + firstLine);
 					return;
 				}
 			}
@@ -211,13 +221,15 @@ public class CSdict {
 			while ( !((response = in.readLine()).trim().equals(".")) ){
 					System.out.println(response);
 			}
-			System.out.println(response);
+			System.out.println(response); // prints the period .
 			String responseCode = CSdict.in.readLine();
 			// System.out.println(responseCode.split(" [")[0]);
 			// if (responseCode.split(" [")[0].equals("552 no match")) {
 			// 	System.out.println("****No definition found****");
 			// }
-			System.out.println(responseCode); // print the status code
+			if (CSdict.debugOn) {
+				System.out.println("<-- " + responseCode); // print the status code
+			}
 		} catch (IOException e) {
 			// error
 		} catch (Exception e) {
