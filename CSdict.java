@@ -106,13 +106,21 @@ public class CSdict {
 						handleOpenCommand(arguments);
 						break;
 					case "dict":
-						handleDictCommand();
+						if (CSdict.socket == null) {
+							System.out.println("903 Supplied command not expected at this time.");
+							break;
+						}
 						if (!isValidNumberOfArgs(arguments, 0)) {
 							System.out.println("901 Incorrect number of arguments.");
 							break;
 						}
+						handleDictCommand();
 						break;
 					case "set":
+						if (CSdict.socket == null) {
+							System.out.println("903 Supplied command not expected at this time.");
+							break;
+						}
 						if (!isValidNumberOfArgs(arguments, 1)) {
 							System.out.println("901 Incorrect number of arguments.");
 							break;
@@ -120,6 +128,10 @@ public class CSdict {
 						handleSetCommand(arguments);
 						break;
 					case "define":
+						if (CSdict.socket == null) {
+							System.out.println("903 Supplied command not expected at this time.");
+							break;
+						}
 						if (!isValidNumberOfArgs(arguments, 1)) {
 							System.out.println("901 Incorrect number of arguments.");
 							break;
@@ -127,12 +139,24 @@ public class CSdict {
 						handleDefineCommand(arguments);
 						break;	
 					case "match":
+						if (CSdict.socket == null) {
+							System.out.println("903 Supplied command not expected at this time.");
+							break;
+						}
 						handleMatchCommand(arguments);
 						break;	
 					case "prefixmatch":
+						if (CSdict.socket == null) {
+							System.out.println("903 Supplied command not expected at this time.");
+							break;
+						}
 						handlePrefixmatchCommand(arguments);
 						break;	
 					case "close":
+						if (CSdict.socket == null) {
+							System.out.println("903 Supplied command not expected at this time.");
+							break;
+						}
 						if (!isValidNumberOfArgs(arguments, 0)) {
 							System.out.println("901 Incorrect number of arguments.");
 							break;
@@ -296,11 +320,27 @@ public class CSdict {
 	public static void handleCloseCommand() {
 		String cmd = "q";
 		readAllLines(cmd);
+		if (CSdict.socket != null) {
+			try {
+				CSdict.socket.close();
+				CSdict.socket = null; 
+			} catch (IOException e) {
+				System.out.println("999 Processing error. Failed to close socket connection.");
+			}
+		}
 	}
 
 	public static void handleQuitCommand() {
 		String cmd = "q";
 		readAllLines(cmd);
+		if (CSdict.socket != null) {
+			try {
+				CSdict.socket.close();
+				CSdict.socket = null; 
+			} catch (IOException e) {
+				System.out.println("999 Processing error. Failed to close socket connection.");
+			}
+		}
 		System.exit(-1);
 	}
 }
