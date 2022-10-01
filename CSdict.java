@@ -206,15 +206,13 @@ public class CSdict {
 				if (response.startsWith("110")) {
 					if (debugOn) {
 						System.out.println("<-- " + response);
-						continue;
 					}
+					continue;
 				} else if (response.startsWith("150")) {
 					if (debugOn) {
 						System.out.println("<-- " + response);
-						continue;
-					} else {
-						continue;
 					}
+					continue;
 				} else if (response.startsWith("151")) {
 					if (debugOn) {
 						System.out.println("<-- " + response);
@@ -226,8 +224,8 @@ public class CSdict {
 				} else if (response.startsWith("152")) {
 						if (debugOn) {
 							System.out.println("<-- " + response);
-							continue;
 						}
+						continue;
 				} else if (response.startsWith("250")) {
 					if (debugOn) {
 						System.out.println("<-- " + response);
@@ -303,8 +301,9 @@ public class CSdict {
 			CSdict.in =
 				new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
+			String statusMsg = in.readLine();
 			if (debugOn) {
-				System.out.println("<-- " + in.readLine());
+				System.out.println("<-- " + statusMsg);
 			}
 		} catch (SocketTimeoutException e) {
 			if (socket.isConnected()) {
