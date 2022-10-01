@@ -212,12 +212,17 @@ public class CSdict {
 					if (debugOn) {
 						System.out.println("<-- " + response);
 						continue;
+					} else {
+						continue;
 					}
 				} else if (response.startsWith("151")) {
 					if (debugOn) {
 						System.out.println("<-- " + response);
-						continue;
-					}
+					} 
+					String[] tempString = response.split(" ");
+					String[] dictName = Arrays.copyOfRange(tempString, 2, tempString.length);
+					System.out.println("@ " + String.join(" ", dictName));
+					continue; 
 				} else if (response.startsWith("152")) {
 						if (debugOn) {
 							System.out.println("<-- " + response);
@@ -298,7 +303,9 @@ public class CSdict {
 			CSdict.in =
 				new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
-			System.out.println("<-- " + in.readLine());
+			if (debugOn) {
+				System.out.println("<-- " + in.readLine());
+			}
 		} catch (SocketTimeoutException e) {
 			if (socket.isConnected()) {
 				System.err.println("999 Processing error. Timed out while waiting for a response.");
