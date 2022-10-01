@@ -292,17 +292,24 @@ public class CSdict {
 
 		try {
 			CSdict.socket = new Socket(hostName, portNumber);
+			CSdict.socket.setSoTimeout(30000);
 			CSdict.out =
 				new PrintWriter(socket.getOutputStream(), true);
 			CSdict.in =
 				new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
 			System.out.println("<-- " + in.readLine());
+		} catch (SocketTimeoutException e) {
+			if (socket.isConnected()) {
+				System.err.println("999 Processing error. Timed out while waiting for a response.");
+			} else {
+			 	System.err.println("920 Control connection to " + hostName +  " on port " + portNumber + " failed to open.");
+			}
 		} catch (UnknownHostException e) {
-			System.err.println("Don't know about host " + hostName);
+			System.err.println("999 Processing error. Don't know about host " + hostName);
 			System.exit(1);
 		} catch (IOException e) {
-			System.err.println("Couldn't get I/O for the connection to " +
+			System.err.println("999 Processing error. Couldn't get I/O for the connection to " +
 				hostName);
 			System.exit(1);
 		} 
