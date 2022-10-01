@@ -32,7 +32,7 @@ public class CSdict {
 	private static PrintWriter out;
 	private static BufferedReader in;
 	private static String dictionary = "*";
-	private static ArrayList<String> responseCodes = new ArrayList<String>();
+	private static ArrayList<String> endCodes = new ArrayList<String>();
     
     public static void main(String [] args) {
 	// responseCodes.add("250 ok");
@@ -42,12 +42,14 @@ public class CSdict {
 	// responseCodes.add("550 invalid database, use SHOW DB for list");
 	// responseCodes.add("554 no databases present");
 
-	responseCodes.add("250");
-	responseCodes.add("221");
-	responseCodes.add("551");
-	responseCodes.add("552");
-	responseCodes.add("550");
-	responseCodes.add("554");
+	endCodes.add("250");
+	endCodes.add("221");
+	endCodes.add("551");
+	endCodes.add("552");
+	endCodes.add("550");
+	endCodes.add("554");
+
+	
 	
 	if (args.length == PERMITTED_ARGUMENT_COUNT) {
 		debugOn = args[0].equals("-d");
@@ -146,7 +148,7 @@ public class CSdict {
 							System.out.println("901 Incorrect number of arguments.");
 							break;
 						}
-						handleMatchCommand(arguments);
+						handleMatchCommand(arguments, "match");
 						break;	
 					case "prefixmatch":
 						if (CSdict.socket == null) {
@@ -191,44 +193,85 @@ public class CSdict {
 		int given = args.length;
 		return given == expected;
 	}
-	// public static boolean checkResponseCode(String line) throws Exception {
-
-	// 	for (String i : responseCodes) {
-	// 		if (line.contains(i)) {
-	// 			System.out.println(i);
-	// 			return false;
-	// 		}
-	// 	}
-    // 	return true;
-	// }
 
 	// https://stackoverflow.com/questions/60922164/reading-multiple-lines-from-server?fbclid=IwAR3tVir5sdSPmMoCNwFsAKjai_7S87mS4M19uOx818A5zAkb8udwPeUY-sM
-	public static void readAllLines(String cmd) {
+	public static void readAllLines(String cmdString, String cmd) {
 		try {
 			String response = "";
-			CSdict.out.println(cmd);
 			if (CSdict.debugOn) {
-				System.out.println("> " + cmd);
+				System.out.println("> " + cmdString);
 			}
-			String firstLine = in.readLine();
-			for (String line : responseCodes) { // Only really in use by the MATCH command, DEFINE uses logic in its own handler
-				if (firstLine.startsWith(line)) {
-					System.out.println("<-- " + firstLine);
-					return;
+			CSdict.out.println(cmdString);
+			while ( (response = in.readLine()) != null ) {
+				if (response.startsWith("110")) {
+					if (debugOn) {
+						System.out.println("<-- " + response);
+						continue;
+					}
+				} else if (response.startsWith("150")) {
+					if (debugOn) {
+						System.out.println("<-- " + response);
+						continue;
+					}
+				} else if (response.startsWith("151")) {
+					if (debugOn) {
+						System.out.println("<-- " + response);
+						continue;
+					}
+				} else if (response.startsWith("152")) {
+						if (debugOn) {
+							System.out.println("<-- " + response);
+							continue;
+						}
+				} else if (response.startsWith("250")) {
+					if (debugOn) {
+						System.out.println("<-- " + response);
+					}
+					return;				
 				}
-			}
-			System.out.println(firstLine);
-			while ( !((response = in.readLine()).trim().equals(".")) ){
-					System.out.println(response);
-			}
-			System.out.println(response); // prints the period .
-			String responseCode = CSdict.in.readLine();
-			// System.out.println(responseCode.split(" [")[0]);
-			// if (responseCode.split(" [")[0].equals("552 no match")) {
-			// 	System.out.println("****No definition found****");
-			// }
-			if (CSdict.debugOn) {
-				System.out.println("<-- " + responseCode); // print the status code
+				switch (cmd) {
+					case "match":
+						if (response.startsWith("552")) {
+							if (debugOn) {
+								System.out.println("<-- " + response);
+							}
+							System.out.println("****No matching word(s) found****");
+							return;
+						} 
+						break;
+					case "matchFromDefine":
+						if (response.startsWith("552")) {
+							if (debugOn) {
+								System.out.println("<-- " + response);
+							}
+							System.out.println("****No matches found****");
+							return;
+						} 
+					break;
+	
+					case "define":
+						if (response.startsWith("552")) {
+							if (debugOn) {
+								System.out.println("<-- " + response);
+							}
+							System.out.println("****No definition found****");
+							handleMatchCommand(new String[] {cmdString.split(" ")[2]}, "matchFromDefine");
+							return;
+						} 
+						break;
+	
+					default:
+						break;
+				}
+				for (String line : endCodes) { 
+					if (response.startsWith(line)) {
+						if (debugOn) {
+							System.out.println("<-- " + response);
+						}
+						return;
+					}
+				}
+				System.out.println(response);
 			}
 		} catch (IOException e) {
 			// error
@@ -254,9 +297,6 @@ public class CSdict {
 			CSdict.in =
 				new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
-			// BufferedReader stdIn =
-			// 	new BufferedReader(
-			// 		new InputStreamReader(System.in));
 			System.out.println("<-- " + in.readLine());
 		} catch (UnknownHostException e) {
 			System.err.println("Don't know about host " + hostName);
@@ -273,70 +313,41 @@ public class CSdict {
 
 	public static void handleDictCommand() {
 		String cmd = "show db";
-		readAllLines(cmd);
+		readAllLines(cmd, "dict");
 	}
 
 	public static void handleSetCommand(String[] arg) {
-		// code
 		CSdict.dictionary = arg[0];
 	}
 
 	public static void handleDefineCommand(String[] arg) {
 		String cmd = "define" + " ";
 		cmd += CSdict.dictionary == "*" ? "all" + " " + arg[0] : CSdict.dictionary + " " + arg[0];
-		CSdict.out.println(cmd);
-		try {
-			String response = "";
-			String firstLine = in.readLine();
-			if (firstLine.startsWith("552")) {
-				System.out.println("****No definition found****");
-				cmd = "match" + " " + CSdict.dictionary + " " + "exact" + " " + arg[0];
-				CSdict.out.println(cmd);
-				firstLine = in.readLine();
-				if (firstLine.startsWith("552")) {
-					System.out.println("****No matches found****");
-					return;
-				} else {
-					readAllLines(cmd);
-				}
-				return;
-			} 
-			readAllLines(cmd);
-		} catch (IOException e) {
-			// error
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		readAllLines(cmd, "define");
 	}
 
-	public static void handleMatchCommand(String[] arg) {
+	public static void handleMatchCommand(String[] arg, String matchOrigin) {
 		String commandString = "MATCH " + CSdict.dictionary + " exact";
-		// why is there potentially more than 1 word to match?
-		for (int i = 0; i < arg.length; i++) {
-			String temp = " " + arg[i];
-			commandString +=  temp;
-		}
-		readAllLines(commandString);
+		String temp = " " + arg[0];
+		commandString +=  temp;
+		readAllLines(commandString, matchOrigin);
 	}
 
 	public static void handlePrefixmatchCommand(String[] arg) {
 		String commandString = "MATCH " + CSdict.dictionary + " prefix";
-		for (int i = 0; i < arg.length; i++) {
-			String temp = " " + arg[i];
-			commandString +=  temp;
-		}
-		readAllLines(commandString);
+		String temp = " " + arg[0];
+		commandString +=  temp;
+		readAllLines(commandString, "match");
 	}
 
 	public static void handleCloseCommand() {
 		String cmd = "q";
-		readAllLines(cmd);
+		readAllLines(cmd, "close");
 		if (CSdict.socket != null) {
 			try {
 				CSdict.socket.close();
 				CSdict.socket = null; 
-			} catch (IOException e) {
+			} catch (IOException e) { 
 				System.out.println("999 Processing error. Failed to close socket connection.");
 			}
 		}
@@ -344,7 +355,7 @@ public class CSdict {
 
 	public static void handleQuitCommand() {
 		String cmd = "q";
-		readAllLines(cmd);
+		readAllLines(cmd, "quit");
 		if (CSdict.socket != null) {
 			try {
 				CSdict.socket.close();
