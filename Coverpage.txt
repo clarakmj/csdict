@@ -30,7 +30,7 @@ information to this file and then commit and push this file.
 STUDENT  1
 Name : Richard Chen
 St. No: 45564895
-Unix Id :
+Unix Id : rchen2
 Email: rchen2@ualberta.ca
 
 
