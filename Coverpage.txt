@@ -37,6 +37,6 @@ Email: rchen2@ualberta.ca
 STUDENT  2
 Name : Clara Kim
 St. No: 51832228
-Unix Id :
+Unix Id : clarakmj
 Email: clarakmj@student.ubc.ca
 
