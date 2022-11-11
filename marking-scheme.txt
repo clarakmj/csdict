@@ -1,4 +1,5 @@
 Total before late penalty: [63/72]
+    ***Total after 100.0% late penalty is 0.0
 You can check file commandline_outputs.txt for the full output from the autoexpect tests.
 You can also refer to rubric at Canvas for more details.
 
@@ -26,3 +27,4 @@ documented methods || 0 / 1 ||
 code quality || 5 / 5 || 
 -d option || 5 / 6 || -1, "quit" prints "q" after "close" is called
 handling of error 925 || 0 / 2 || -2, not handled (instead there is a 999 it seems)
+
